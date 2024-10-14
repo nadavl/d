@@ -65,19 +65,19 @@ async function crawlUrl(url: string) {
 
   try {
     // Disable AJAX requests before navigating to the page
-    await page.addInitScript(() => {
-      window.XMLHttpRequest = class {
-        open() {}
-        send() {}
-        setRequestHeader() {}
-      } as any;
-      window.fetch = () => Promise.reject('fetch is disabled');
-    });
+    // await page.addInitScript(() => {
+    //   window.XMLHttpRequest = class {
+    //     open() {}
+    //     send() {}
+    //     setRequestHeader() {}
+    //   } as any;
+    //   window.fetch = () => Promise.reject('fetch is disabled');
+    // });
 
     await page.goto(url, { waitUntil: "networkidle" });
 
     const urlObj = new URL(url);
-    const dirName = urlObj.hostname + urlObj.pathname.replace(/\//g, "_");
+    const dirName = 'pages/' + urlObj.hostname + urlObj.pathname.replace(/\//g, "_");
     await ensureDir(dirName);
 
     // Get HTML content and replace internal URLs
@@ -92,24 +92,28 @@ async function crawlUrl(url: string) {
 
       // Replace URLs in navigation and resource loading elements
       document.querySelectorAll('a').forEach(el => replaceUrl(el, 'href'));
-      document.querySelectorAll('img, script[src], link[href]').forEach(el => replaceUrl(el, el.tagName === 'LINK' ? 'href' : 'src'));
-      document.querySelectorAll('form').forEach(el => replaceUrl(el, 'action'));
+      document.querySelectorAll('img, link[href]').forEach(el => replaceUrl(el, el.tagName === 'LINK' ? 'href' : 'src'));
+      
+      // Remove all script tags
+      document.querySelectorAll('script').forEach(el => el.remove());
+
+    //   document.querySelectorAll('form').forEach(el => replaceUrl(el, 'action'));
 
       return document.documentElement.outerHTML;
     }, url);
 
     // Inject script to disable AJAX in the saved HTML
-    const disableAjaxScript = `
-      <script>
-        window.XMLHttpRequest = class {
-          open() {}
-          send() {}
-          setRequestHeader() {}
-        };
-        window.fetch = () => Promise.reject('fetch is disabled');
-      </script>
-    `;
-    html = html.replace('</head>', `${disableAjaxScript}</head>`);
+    // const disableAjaxScript = `
+    //   <script>
+    //     window.XMLHttpRequest = class {
+    //       open() {}
+    //       send() {}
+    //       setRequestHeader() {}
+    //     };
+    //     window.fetch = () => Promise.reject('fetch is disabled');
+    //   </script>
+    // `;
+    // html = html.replace('</head>', `${disableAjaxScript}</head>`);
 
     // Save HTML with replaced URLs and disabled AJAX
     await Deno.writeTextFile(join(dirName, "index.html"), html);
@@ -158,7 +162,15 @@ async function crawlUrl(url: string) {
 }
 
 async function main() {
-const urls = extractUrlsFromSitemap(sitemap).slice(0, 3);  
+// await Deno.remove("pages", { recursive: true }).catch((error) => {
+//     if (error instanceof Deno.errors.NotFound) {
+//         console.log("Folder 'pages' does not exist, skipping removal.");
+//     } else {
+//         throw error;
+//     }
+//     });
+    
+  const urls = extractUrlsFromSitemap(sitemap);//.slice(0, 3);
   console.log(`Found ${urls.length} URLs to crawl`);
 
   for (const url of urls) {

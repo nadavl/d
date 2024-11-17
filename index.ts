@@ -2,57 +2,6 @@ import { chromium } from "npm:playwright";
 import { ensureDir } from "https://deno.land/std@0.184.0/fs/ensure_dir.ts";
 import { join } from "https://deno.land/std@0.184.0/path/mod.ts";
 
-const sitemap = `
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-   <url>
-      <loc>https://fastlanes.co.il/plan-trip</loc>
-   </url>
-   <url>
-      <loc>https://fastlanes.co.il/contact-us</loc>
-   </url>
-   <url>
-      <loc>https://fastlanes.co.il/#pay-form</loc>
-   </url>
-   <url>
-      <loc>https://fastlanes.co.il/Register</loc>
-   </url>
-   <url>
-      <loc>https://fastlanes.co.il/info</loc>
-   </url>
-   <url>
-      <loc>https://fastlanes.co.il/login</loc>
-   </url>
-   <url>
-      <loc>https://fastlanes.co.il/terms-of-use</loc>
-   </url>
-   <url>
-      <loc>https://fastlanes.co.il/privacy-protection</loc>
-   </url>
-   <url>
-      <loc>https://fastlanes.co.il/accessibility-decleration</loc>
-   </url>
-   <url>
-      <loc>https://fastlanes.co.il/lrr-decleration</loc>
-   </url>
-   <url>
-      <loc>https://fastlanes.co.il/help</loc>
-   </url>
-   <url>
-      <loc>https://fastlanes.co.il/useful-documents</loc>
-   </url>
-   <url>
-      <loc>https://fastlanes.co.il/travel-system</loc>
-   </url>
-   <url>
-      <loc>https://fastlanes.co.il/parking</loc>
-   </url>
-   <url>
-      <loc>https://fastlanes.co.il/plan-trip</loc>
-   </url>
-</urlset>
-`;
-
 function extractUrlsFromSitemap(sitemapXml: string): string[] {
   const regex = /<loc>(.*?)<\/loc>/g;
   const matches = sitemapXml.match(regex);
